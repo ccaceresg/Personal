@@ -1,0 +1,53 @@
+# -----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Generar javascript de puntos de entrenamiento a partir de archivo CSV @ccaceresg.
+#Las columnas deben llamarse de la siguiente manera:
+#x -> guarda las longitudes en grados decimales       
+#y -> guarda las latitudes en grados decimales
+#id_class -> id numerico de la clase: 1, 2, 3...etc
+#class -> id textual de la clase: agua, suelo...etc
+#system_index -> contador de muestras por clase: 1,2,3...n (agua)  1, 2, 3...n (suelos)
+# -------------------------------------------------------------------------------------------------------------------
+
+import os
+import pandas as pd
+
+rutaActual = os.path.realpath('__file__')
+carpetaActual = os.path.dirname(rutaActual)
+os.chdir(carpetaActual)
+
+df = pd.read_csv("puntos.csv")
+
+min=int(input('Valor numerico minimo de las clases:'))
+max=int(input('Valor numerico maximo de las clases:'))
+
+max=max+1
+
+print(" ")
+print("\033[1;31m"+"Copie y pegue en Google Earth Engine el siguiente codigo generado:"+'\033[0;m')
+print(" ")
+
+for i in range(min, max):
+    nombreclase=('clase'+str(i))
+    df_clase=df[df.id_class == i]
+    total = int(len (df_clase))
+    contador=0
+    print ('var',nombreclase, '= /* color: #d63000 */ee.FeatureCollection([')
+
+    while contador < total:
+        lon = df_clase.iloc[contador,0]
+        lat = df_clase.iloc[contador,1]
+        idc = df_clase.iloc[contador,2]
+        cla = df_clase.iloc[contador,3]
+        si = df_clase.iloc[contador,4]
+        print (' ee.Feature(ee.Geometry.Point(', lon,',', lat,'),')
+        print (' {id_clase:',idc,',clase:"',cla,'", system_index:"',si,'"')
+        if contador == (total-1):
+            print(' })]);')
+        else:
+            print(' }),')
+        contador +=1     
+        
+print(" ")
+print("\033[1;31m"+"FIN! NO COPIAR ESTA LINEA")
+
+#- END - END - END - END - END - END - END - END - END -
